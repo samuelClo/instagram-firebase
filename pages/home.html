@@ -42,7 +42,7 @@
                 </aside>
                 <div class="actualityPicture">
                     <input type="file" id="fileAddPictureActuality" style="display: none">
-                    <img src="../assets/picture/add.svg"  class="pictureAddActuality cursorPointer" style="width: 50px" alt="">
+                    <img src="../assets/picture/add.svg"  id="pictureAddActuality" alt="">
                 </div>
                 <footer id="footerAddActuality">
                     <span>Ajouter une description :</span>
@@ -57,11 +57,11 @@
                 <aside class="actualityHeader">
                     <div class="actualityProfilAsset">
                         <img src="../assets/picture/template.png" alt="">
-                        <h4>Créer une publication</h4>
+                        <h4>titre de la publication</h4>
                     </div>
                 </aside>
                 <div class="actualityPicture">
-                    <img src="../assets/picture/add.svg"  class="pictureAddActuality" style="width: 50px" alt="">
+                    <img src="../assets/picture/530398-800-marvelvr.png" alt="">
                 </div>
                 <footer>
                     <nav class="actualityAssetsLinks">
@@ -81,7 +81,7 @@
                                 <span class="bold">m.arjane_h</span>
                                 Les femmes qui m'entourent sont fortes, incroyablement inspirantes.
                             </p>
-                            <span> Afficher les 22 commentaires</span>
+                            <span class="displayAllComment"> Afficher les 22 commentaires</span>
                             <p>
                                 <span class="bold">charlotte_fritz_lahaye</span>
                                 J’tentoure moi ?
@@ -91,13 +91,15 @@
                                 J’tentoure moi ?
                             </p>
                         </div>
+                        <span class="actualityPublishDate">
+                            17 OCTOBRE
+                        </span>
                     </div>
-                    <form action="" class="addComment">
-                        <input class="addCommentInput" type="text">
-                        <input type="submit" value="Publier" class="submitAddComment">
-                    </form>
-
                 </footer>
+                <form action="" class="addComment">
+                    <input class="addCommentInput" type="text" placeholder="Ajouter un commentaire">
+                    <input type="submit" value="Publier" class="submitAddComment">
+                </form>
             </div>
         </div>
 

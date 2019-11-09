@@ -188,9 +188,6 @@ header {
   margin-right: 28px;
   max-width: 614px;
   width: 100%;
-  border: 1px solid #dbdbdb;
-  border-radius: 3px;
-  background-color: #fff;
 }
 
 #allUserDisplay {
@@ -238,12 +235,15 @@ header {
   justify-content: center;
   align-items: center;
 }
-.actualityPicture .pictureAddActuality {
+.actualityPicture img {
   width: 100%;
 }
 
 .actuality {
   margin-bottom: 60px;
+  border: 1px solid #dbdbdb;
+  background-color: #fff;
+  border-radius: 3px;
 }
 
 .cursorPointer {
@@ -273,6 +273,11 @@ header {
   padding: 13px 10px;
 }
 
+#pictureAddActuality {
+  cursor: pointer;
+  width: 50px;
+}
+
 @media all and (max-width: 1000px) {
   #headerContainer {
     width: unset;
@@ -292,6 +297,74 @@ header {
     display: none;
   }
 }
+.actuality footer {
+  padding: 0 16px 8px;
+}
+
+.actualityAssetsLinks {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+.actualityAssetsLinks img {
+  margin-right: 15px;
+  height: 24px;
+}
+.actualityAssetsLinks img:last-child {
+  margin-right: unset;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.likeByContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.likeByContainer img {
+  height: 20px;
+  width: 20px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.commentContainer p {
+  line-height: 18px;
+}
+
+.displayAllComment {
+  display: block;
+  color: #999;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.actualityPublishDate {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  color: #999;
+}
+
+.addComment {
+  display: flex;
+  border-top: 1px solid #dbdbdb;
+  padding: 0 16px;
+  justify-content: space-between;
+}
+.addComment .submitAddComment {
+  background-color: unset;
+  color: #3897f0;
+}
+
+.addCommentInput {
+  border: unset;
+  padding: 20px 0 20px;
+}
+
 @media all and (max-width: 650px) {
   .actualityPicture {
     padding: 50px 25px;
