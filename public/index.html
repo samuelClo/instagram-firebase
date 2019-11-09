@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <title>Instagram</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Shadows+Into+Light&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style/normalize.css">
+    <link rel="stylesheet" href="../assets/style/main.css">
+</head>
+<body>
+<main>
+    <section id="connectionContainer">
+        <div class="connexionFormContainer">
+            <h1 id="instagramText">Instagram</h1>
+            <form action="./index.html">
+                <input type="email" class="connexionInput"
+                       placeholder="Numéro de téléphone, nom d’utilisateur ou adresse e-mail">
+                <input type="password" class="connexionInput" placeholder="Mot de passe">
+                <input type="submit" data-type="connexion" value="Connexion">
+            </form>
+            <div class="connexionSeparator">
+                <span>ou</span>
+            </div>
+            <div class="connectWithFacebook">
+                <img src="../assets/picture/logo-fb.png"/>
+                <span>Se connecter avec Facebook</span>
+            </div>
+            <span id="passwordForget">
+                    Mot de passe oublié ?
+            </span>
+        </div>
+        <div class="connexionFormContainer">
+            <p id="redirectRegister">
+                Vous n’avez pas de compte ?
+                <a href="../pages/register.html">Inscrivez vous</a>
+            </p>
+        </div>
+        <div class="connexionFormContainer" id="downloadApp">
+            <span id="labelDownloadApp">Télécharger l’application.</span>
+            <div id="connexionLogoLink">
+                <a href="">
+                    <img src="https://www.instagram.com/static/images/appstore-install-badges/badge_ios_french-fr.png/485fcccb52dc.png"
+                         alt="logo de Facebook">
+                </a>
+                <a href="">
+                    <img src="https://www.instagram.com/static/images/appstore-install-badges/badge_android_french-fr.png/46aa4b6fd58d.png"
+                         alt="logo du Play-store">
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-auth.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-storage.js"></script>
+<script src="../assets/js/index.js"></script>
+</body>
+</html>
