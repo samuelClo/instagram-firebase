@@ -40,7 +40,7 @@ let logFirebase = (email, password) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
         .then(() => {
             console.log('connection suceed')
-            document.location.href="./../pages/home.html"
+            document.location.href = "./../pages/home.html"
         })
         .catch(function (error) {
             console.log(error)
@@ -194,7 +194,8 @@ if (document.querySelector('#userCurrentProfil')) {
                                 snapshot.docChanges().forEach(function (change) {
                                     if (change.type === "added") {
                                         console.log("add city: ", change.doc.data());
-                                        renderPublication(change.doc.data())
+                                        console.log(change.doc.id)
+                                        renderPublication({...change.doc.data(), docId: change.doc.id})
                                     }
                                     if (change.type === "modified") {
                                         console.log("Modified city: ", change.doc.data());
@@ -244,6 +245,7 @@ if (document.querySelector('#userCurrentProfil')) {
                 })
 
             const renderPublication = (data) => {
+                console.log(data)
                 if (!data.picture)
                     return null
                 var docRef = db.collection("users").doc(data.uid);
@@ -258,6 +260,18 @@ if (document.querySelector('#userCurrentProfil')) {
                     console.log("Error getting document:", error);
                 });
 
+                let isLiked = false
+
+                if (data.likes)
+                    isLiked = data.likes.find(function (element) {
+                        return element === user.uid;
+                    });
+                // const renderLikedPicture = (userId) => {
+                //     if (isLiked)
+                //         return `<img data-uid=${userId} class="like" src="../assets/picture/like-fill-red.png" alt="">`
+                //     else
+                //         return `<img data-uid=${userId} class="like" src="../assets/picture/like.png" alt="">`
+                // }
 
                 storage.child(`images/images-publication/${data.picture}`).getDownloadURL().then(function (urlPublicationPicture) {
                     docRef.get().then(function (doc) {
@@ -276,7 +290,13 @@ if (document.querySelector('#userCurrentProfil')) {
                 </div>
                 <footer>
                     <nav class="actualityAssetsLinks">
-                        <img data-uid=${user.uid} class="like" src="../assets/picture/like.png" alt="">
+                        <img 
+                            data-uid=${user.uid} 
+                            data-doc-id=${data.docId} 
+                            class="like" 
+                            src=${isLiked ? "../assets/picture/like-fill-red.png" : "../assets/picture/like.png"}
+                            data-is-liked="${isLiked ? 1 : 0}"
+                            alt="">
                         <img src="../assets/picture/comment.png" alt="">
                         <img src="../assets/picture/export.png" alt="">
                     </nav>
@@ -314,7 +334,8 @@ if (document.querySelector('#userCurrentProfil')) {
             </div>
        `
                             document.querySelector('.actuality:first-child').parentNode.insertBefore(actuality, document.querySelector('.actuality:first-child').nextSibling);
-                            actuality.querySelector('.like').addEventListener('click', () => likePublication(user.uid))
+                            console.log(data)
+                            actuality.querySelector('.like').addEventListener('click', () => likePublication(user.uid, data.docId))
                         }).catch(function (error) {
                             console.log(error)
                         })
@@ -353,14 +374,52 @@ const setFollow = (uid) => {
         })
 }
 
-// const likePublication = (uid) => {
-//     db.collection("publication").doc('hasLiked').add({uid})
-//     .then(function () {
-//         console.log("Document successfully written!")
-//     }).catch(function (error) {
-//         console.error("Error writing document: ", error)
-//     })
-// }
+const likePublication = (uid, docId) => {
+    const currentLike = document.querySelector(`.actualityAssetsLinks img[data-doc-id="${docId}"]`)
+
+    if (currentLike.getAttribute('data-is-liked') === "0") {
+        db.collection("publication").doc(docId).get().then(doc => {
+            if (doc.exists) {
+                doc.ref.update({
+                    likes: firebase.firestore.FieldValue.arrayUnion(uid)
+                })
+                    .then(() => {
+                        db.collection("publication").doc(docId).get().then(like => {
+                            if (like.exists) {
+                                console.log('like')
+                            }
+                        })
+                        currentLike.setAttribute('data-is-liked', '1')
+                        currentLike.src = '../assets/picture/like-fill-red.png'
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                    })
+            }
+        })
+    } else {
+        db.collection("publication").doc(docId).get().then(doc => {
+            if (doc.exists) {
+                doc.ref.update({
+                    likes: firebase.firestore.FieldValue.arrayRemove(uid)
+                })
+                    .then(() => {
+                        db.collection("publication").doc(docId).get().then(like => {
+                            if (like.exists) {
+                                console.log('like')
+                            }
+                        })
+                        currentLike.setAttribute('data-is-liked', '0')
+                        currentLike.src = '../assets/picture/like.png'
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                    })
+            }
+        })
+    }
+}
+
 const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
 const renamePicture = (namePicture) => Date.now().toString() + getRandomInt(1000).toString() + namePicture
 
