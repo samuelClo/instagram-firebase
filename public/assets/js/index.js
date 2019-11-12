@@ -1,4 +1,3 @@
-// Your web app's Firebase configuration
 let firebaseConfig = {
     apiKey: "AIzaSyB2x3-jNQRazyoypmhKqPgf-_G_ShJfiIU",
     authDomain: "projet-d-apprentissage.firebaseapp.com",
@@ -36,11 +35,12 @@ if (document.querySelector('.connexionFormContainer input[data-type="register"]'
     })
 }
 
-let logFirebase = (email, password) => {
+const logFirebase = (email, password, type) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
         .then(() => {
-            console.log('connection suceed')
-            document.location.href = "./../pages/home.html"
+            if (type === 'register')
+                document.location.href = "./home.html"
+            document.location.href = "./pages/home.html"
         })
         .catch(function (error) {
             console.log(error)
@@ -52,15 +52,14 @@ const authFirebase = (email, password) => {
         .then(() => {
             const picture = document.querySelector('input[type="file"]').files[0]
             const pictureName = renamePicture(picture.name)
-            user = firebase.auth().currentUser
             const userPseudo = document.querySelector('input[data-type="pseudo"]').value
-
-            let mountainsRef = storageRef.child(pictureName)
-            let mountainImagesRef = storageRef.child(`images/${pictureName}`)
-
             const metadata = {contentType: 'image/jpeg'}
 
-            const uploadTask = storageRef.child(`images/${pictureName}`).put(
+            user = firebase.auth().currentUser
+
+            storageRef.child(pictureName)
+            storageRef.child(`images/${pictureName}`)
+            storageRef.child(`images/${pictureName}`).put(
                 picture,
                 metadata
             )
@@ -79,12 +78,10 @@ const authFirebase = (email, password) => {
                 profilPicture: pictureName,
                 email
             }).then(function () {
-                console.log("Document successfully written!")
-                logFirebase(email, password)
+                logFirebase(email, password, 'register')
             }).catch(function (error) {
                 console.error("Error writing document: ", error)
             })
-            console.log('inscription suceed')
         })
         .catch(function (error) {
             console.log(error)
@@ -101,7 +98,13 @@ const authFirebase = (email, password) => {
 if (document.querySelector('#userCurrentProfil')) {
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-            let docRef = db.collection("users").doc(user.uid)
+            document.querySelector('#logout').addEventListener('click',(e) => {
+                e.preventDefault()
+                document.location.href = "../index.html"
+                firebase.auth().signOut()
+            })
+            const docRef = db.collection("users").doc(user.uid)
+
             docRef.get().then(function (doc) {
                 if (doc.exists) {
                     const docData = doc._document.proto.fields
@@ -110,10 +113,10 @@ if (document.querySelector('#userCurrentProfil')) {
                     document.querySelector('#userCurrentProfil .displayProfilPseudo').innerText = docData.name.stringValue
 
                     storage.child(`images/${docData.profilPicture.stringValue}`).getDownloadURL().then(function (url) {
-                        var xhr = new XMLHttpRequest()
+                        let xhr = new XMLHttpRequest()
                         xhr.responseType = 'blob'
                         xhr.onload = function (event) {
-                            var blob = xhr.response
+                            let blob = xhr.response
                         }
                         xhr.open('GET', url)
                         xhr.send()
@@ -193,18 +196,18 @@ if (document.querySelector('#userCurrentProfil')) {
                             .onSnapshot(function (snapshot) {
                                 snapshot.docChanges().forEach(function (change) {
                                     if (change.type === "added") {
-                                        console.log("add city: ", change.doc.data());
+                                        console.log("add city: ", change.doc.data())
                                         console.log(change.doc.id)
                                         renderPublication({...change.doc.data(), docId: change.doc.id})
                                     }
                                     if (change.type === "modified") {
-                                        console.log("Modified city: ", change.doc.data());
+                                        console.log("Modified city: ", change.doc.data())
                                     }
                                     if (change.type === "removed") {
-                                        console.log("Removed city: ", change.doc.data());
+                                        console.log("Removed city: ", change.doc.data())
                                     }
-                                });
-                            });
+                                })
+                            })
                     })
             }).catch(function (error) {
                 console.log("Error getting document:", error)
@@ -213,16 +216,13 @@ if (document.querySelector('#userCurrentProfil')) {
             db.collection("users")
                 .get()
                 .then(function (querySnapshot) {
-
-                    console.log(querySnapshot)
                     querySnapshot.forEach(function (doc) {
                         const data = doc.data()
                         const idDocument = doc.id
 
-                        console.log(data)
-
                         storage.child(`images/${data.profilPicture}`).getDownloadURL().then(function (url) {
-                            let allProfilHtml = document.createElement('div')
+                            const allProfilHtml = document.createElement('div')
+
                             allProfilHtml.classList.add("displayProfil")
                             allProfilHtml.innerHTML = `
                                 <img src=${url} alt="">
@@ -245,103 +245,95 @@ if (document.querySelector('#userCurrentProfil')) {
                 })
 
             const renderPublication = (data) => {
-                console.log(data)
                 if (!data.picture)
                     return null
-                var docRef = db.collection("users").doc(data.uid);
-
-                docRef.get().then(function (doc) {
-                    if (doc.exists) {
-                        console.log("Document data:", doc.data().profilPicture);
-                    } else {
-                        console.log("No such document!");
-                    }
-                }).catch(function (error) {
-                    console.log("Error getting document:", error);
-                });
+                const docRef = db.collection("users").doc(data.uid)
 
                 let isLiked = false
+                let likeExist = true
 
                 if (data.likes)
-                    isLiked = data.likes.find(function (element) {
-                        return element === user.uid;
-                    });
-                // const renderLikedPicture = (userId) => {
-                //     if (isLiked)
-                //         return `<img data-uid=${userId} class="like" src="../assets/picture/like-fill-red.png" alt="">`
-                //     else
-                //         return `<img data-uid=${userId} class="like" src="../assets/picture/like.png" alt="">`
-                // }
+                    isLiked = data.likes.find( el => el === user.uid )
+
+
+                const renderLike = () => {
+                    if (user.uid === data.uid)
+                        return ''
+                    return (
+                        `<img    
+                        data-uid=${user.uid} 
+                        data-doc-id=${data.docId} 
+                        class="like" 
+                        src=${isLiked ? "../assets/picture/like-fill-red.png" : "../assets/picture/like.png"}
+                        data-is-liked="${isLiked ? 1 : 0}"
+                        alt=""> `
+                    )
+                }
+
+                if (user.uid === data.uid)
+                    likeExist = false
 
                 storage.child(`images/images-publication/${data.picture}`).getDownloadURL().then(function (urlPublicationPicture) {
                     docRef.get().then(function (doc) {
                         storage.child(`images/${doc.data().profilPicture}`).getDownloadURL().then(function (urlProfilPicture) {
                             let actuality = document.createElement('div')
                             actuality.classList.add('actuality')
-                            actuality.innerHTML = `
-                <aside class="actualityHeader">
-                    <div class="actualityProfilAsset">
-                        <img src="${urlProfilPicture}" alt="">
-                        <h4>${data.title}</h4>
-                    </div>
-                </aside>
-                <div class="actualityPicture">
-                    <img src="${urlPublicationPicture}" alt="">
-                </div>
-                <footer>
-                    <nav class="actualityAssetsLinks">
-                        <img 
-                            data-uid=${user.uid} 
-                            data-doc-id=${data.docId} 
-                            class="like" 
-                            src=${isLiked ? "../assets/picture/like-fill-red.png" : "../assets/picture/like.png"}
-                            data-is-liked="${isLiked ? 1 : 0}"
-                            alt="">
-                        <img src="../assets/picture/comment.png" alt="">
-                        <img src="../assets/picture/export.png" alt="">
-                    </nav>
-                    <div class="likeByContainer">
-                        <img src="https://picsum.photos/200/300" class="likeByPicture" alt="">
-                        <p class="likeByPicturetext">
-                            Aimé par <span class="bold">jermeie</span> et <span class="bold">75 autres personnes</span>
-                        </p>
-                    </div>
-                    <div class="commentAllContainers">
-                        <div class="commentContainer">
-                            <p>
-                                <span class="bold">m.arjane_h</span>
-                                ${data.description}
-                            </p>
-                            <span class="displayAllComment"> Afficher les 22 commentaires</span>
-                            <p>
-                                <span class="bold">charlotte_fritz_lahaye</span>
-                                J’tentoure moi ?
-                            </p>
-                            <p>
-                                <span class="bold">charlotte_fritz_lahaye</span>
-                                J’tentoure moi ?
-                            </p>
-                        </div>
-                        <span class="actualityPublishDate">
-                            17 OCTOBRE
-                        </span>
-                    </div>
-                </footer>
-                <form action="" class="addComment">
-                    <input class="addCommentInput" type="text" placeholder="Ajouter un commentaire">
-                    <input type="submit" value="Publier" class="submitAddComment">
-                </form>
-            </div>
-       `
-                            document.querySelector('.actuality:first-child').parentNode.insertBefore(actuality, document.querySelector('.actuality:first-child').nextSibling);
-                            console.log(data)
+                            actuality.innerHTML =
+                              ` <aside class="actualityHeader">
+                                    <div class="actualityProfilAsset">
+                                        <img src="${urlProfilPicture}" alt="">
+                                        <h4>${data.title}</h4>
+                                    </div>
+                                </aside>
+                                <div class="actualityPicture">
+                                    <img src="${urlPublicationPicture}" alt="">
+                                </div>
+                                <footer>
+                                    <nav class="actualityAssetsLinks">
+                                        ${renderLike()}
+                                        <img src="../assets/picture/comment.png" alt="">
+                                        <img src="../assets/picture/export.png" alt="">
+                                    </nav>
+                                    <div class="likeByContainer">
+                                        <img src="https://picsum.photos/200/300" class="likeByPicture" alt="">
+                                        <p class="likeByPicturetext">
+                                            Aimé par <span class="bold">jermeie</span> et <span class="bold">75 autres personnes</span>
+                                        </p>
+                                    </div>
+                                    <div class="commentAllContainers">
+                                        <div class="commentContainer">
+                                            <p>
+                                                <span class="bold">m.arjane_h</span>
+                                                ${data.description}
+                                            </p>
+                                            <span class="displayAllComment"> Afficher les 22 commentaires</span>
+                                            <p>
+                                                <span class="bold">charlotte_fritz_lahaye</span>
+                                                J’tentoure moi ?
+                                            </p>
+                                            <p>
+                                                <span class="bold">charlotte_fritz_lahaye</span>
+                                                J’tentoure moi ?
+                                            </p>
+                                        </div>
+                                        <span class="actualityPublishDate">
+                                            17 OCTOBRE
+                                        </span>
+                                    </div>
+                                </footer>
+                                <form action="" class="addComment">
+                                    <input class="addCommentInput" type="text" placeholder="Ajouter un commentaire">
+                                    <input type="submit" value="Publier" class="submitAddComment">
+                                </form>
+                            </div>`
+                            document.querySelector('.actuality:first-child').parentNode.insertBefore(actuality, document.querySelector('.actuality:first-child').nextSibling)
                             actuality.querySelector('.like').addEventListener('click', () => likePublication(user.uid, data.docId))
                         }).catch(function (error) {
                             console.log(error)
                         })
                     }).catch(function (error) {
-                        console.log("Error getting document:", error);
-                    });
+                        console.log("Error getting document:", error)
+                    })
                 }).catch(function (error) {
                     console.log(error)
                 })
@@ -405,9 +397,8 @@ const likePublication = (uid, docId) => {
                 })
                     .then(() => {
                         db.collection("publication").doc(docId).get().then(like => {
-                            if (like.exists) {
+                            if (like.exists)
                                 console.log('like')
-                            }
                         })
                         currentLike.setAttribute('data-is-liked', '0')
                         currentLike.src = '../assets/picture/like.png'
@@ -420,6 +411,6 @@ const likePublication = (uid, docId) => {
     }
 }
 
-const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
+const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max))
 const renamePicture = (namePicture) => Date.now().toString() + getRandomInt(1000).toString() + namePicture
 
