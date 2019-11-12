@@ -98,12 +98,13 @@ const authFirebase = (email, password) => {
 if (document.querySelector('#userCurrentProfil')) {
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-            document.querySelector('#logout').addEventListener('click',(e) => {
-                e.preventDefault()
-                document.location.href = "../index.html"
-                firebase.auth().signOut()
-            })
             const docRef = db.collection("users").doc(user.uid)
+
+            document.querySelector('#logout').addEventListener('click', (e) => {
+                e.preventDefault()
+                firebase.auth().signOut()
+                document.location.href = "../index.html"
+            })
 
             docRef.get().then(function (doc) {
                 if (doc.exists) {
@@ -195,17 +196,8 @@ if (document.querySelector('#userCurrentProfil')) {
                         db.collection("publication").orderBy("creationDate")
                             .onSnapshot(function (snapshot) {
                                 snapshot.docChanges().forEach(function (change) {
-                                    if (change.type === "added") {
-                                        console.log("add city: ", change.doc.data())
-                                        console.log(change.doc.id)
+                                    if (change.type === "added")
                                         renderPublication({...change.doc.data(), docId: change.doc.id})
-                                    }
-                                    if (change.type === "modified") {
-                                        console.log("Modified city: ", change.doc.data())
-                                    }
-                                    if (change.type === "removed") {
-                                        console.log("Removed city: ", change.doc.data())
-                                    }
                                 })
                             })
                     })
@@ -218,26 +210,28 @@ if (document.querySelector('#userCurrentProfil')) {
                 .then(function (querySnapshot) {
                     querySnapshot.forEach(function (doc) {
                         const data = doc.data()
-                        const idDocument = doc.id
+                        const idDocumentUser = doc.id
 
-                        storage.child(`images/${data.profilPicture}`).getDownloadURL().then(function (url) {
-                            const allProfilHtml = document.createElement('div')
+                        if (idDocumentUser !== user.uid) {
+                            storage.child(`images/${data.profilPicture}`).getDownloadURL().then(function (url) {
+                                const allProfilHtml = document.createElement('div')
 
-                            allProfilHtml.classList.add("displayProfil")
-                            allProfilHtml.innerHTML = `
+                                allProfilHtml.classList.add("displayProfil")
+                                allProfilHtml.innerHTML = `
                                 <img src=${url} alt="">
                                 <div class="displayProfilAssets">
                                     <span class="displayProfilPseudo">${data.name}</span>
                                     <span class="displayprofilEmail">${data.email} </span>
-                                    <span data-uid=${idDocument} class="followUser"> follow </span>
+                                    <span data-uid=${idDocumentUser} class="followUser"> follow </span>
                                 </div>`
-                            document.querySelector('#allUserDisplay').appendChild(allProfilHtml)
-                            allProfilHtml.querySelector('.followUser').addEventListener('click', function () {
-                                setFollow(idDocument)
+                                document.querySelector('#allUserDisplay').appendChild(allProfilHtml)
+                                allProfilHtml.querySelector('.followUser').addEventListener('click', function () {
+                                    setFollow(idDocumentUser)
+                                })
+                            }).catch(function (error) {
+                                console.log(error)
                             })
-                        }).catch(function (error) {
-                            console.log(error)
-                        })
+                        }
                     })
                 })
                 .catch(function (error) {
@@ -247,13 +241,14 @@ if (document.querySelector('#userCurrentProfil')) {
             const renderPublication = (data) => {
                 if (!data.picture)
                     return null
+
                 const docRef = db.collection("users").doc(data.uid)
 
                 let isLiked = false
                 let likeExist = true
 
                 if (data.likes)
-                    isLiked = data.likes.find( el => el === user.uid )
+                    isLiked = data.likes.find(el => el === user.uid)
 
 
                 const renderLike = () => {
@@ -279,7 +274,7 @@ if (document.querySelector('#userCurrentProfil')) {
                             let actuality = document.createElement('div')
                             actuality.classList.add('actuality')
                             actuality.innerHTML =
-                              ` <aside class="actualityHeader">
+                                ` <aside class="actualityHeader">
                                     <div class="actualityProfilAsset">
                                         <img src="${urlProfilPicture}" alt="">
                                         <h4>${data.title}</h4>
@@ -327,7 +322,8 @@ if (document.querySelector('#userCurrentProfil')) {
                                 </form>
                             </div>`
                             document.querySelector('.actuality:first-child').parentNode.insertBefore(actuality, document.querySelector('.actuality:first-child').nextSibling)
-                            actuality.querySelector('.like').addEventListener('click', () => likePublication(user.uid, data.docId))
+                            if (actuality.querySelector('.like'))
+                                actuality.querySelector('.like').addEventListener('click', () => likePublication(user.uid, data.docId))
                         }).catch(function (error) {
                             console.log(error)
                         })
