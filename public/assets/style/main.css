@@ -156,6 +156,7 @@ header {
   margin-bottom: 12px;
 }
 .displayProfil img {
+  object-fit: cover;
   height: 50px;
   width: 50px;
   border-radius: 50%;
@@ -220,6 +221,7 @@ header {
   align-items: center;
 }
 .actualityProfilAsset img {
+  object-fit: cover;
   height: 32px;
   width: 32px;
   border-radius: 50%;
@@ -377,7 +379,6 @@ header {
     align-items: center;
   }
   .displayProfil img {
-    object-fit: cover;
     margin-right: unset;
   }
 
